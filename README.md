@@ -41,7 +41,7 @@ python bot.py
 Если используете Docker:
 ```bash
 docker build -t fitness-bot .
-docker run --env-file .env fitness-bot
+docker run fitness-bot
 ```
 
 ## Где взять API ключи
