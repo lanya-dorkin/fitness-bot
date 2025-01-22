@@ -1,0 +1,5 @@
+.venv
+from_lecture
+__pycache__
+*.log
+.env
