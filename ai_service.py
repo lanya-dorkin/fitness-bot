@@ -47,10 +47,8 @@ class AIService:
     def _extract_json_from_text(self, text: str) -> dict:
         """Extract JSON from text even if it's surrounded by other text."""
         try:
-            # Try direct JSON parsing first
             return json.loads(text)
         except json.JSONDecodeError:
-            # Try to find JSON-like structure in the text
             try:
                 start = text.find("{")
                 end = text.rfind("}") + 1
@@ -60,10 +58,8 @@ class AIService:
             except (json.JSONDecodeError, ValueError):
                 pass
             
-            # If still failed, try to extract key-value pairs
             try:
                 if "calories" in text.lower() and ("ккал" in text.lower() or "калор" in text.lower()):
-                    # Try to find numbers near calorie mentions
                     import re
                     numbers = re.findall(r'\d+(?:\.\d+)?', text)
                     if numbers:
@@ -78,11 +74,10 @@ class AIService:
 
     def _extract_duration_from_text(self, text: str) -> Optional[float]:
         """Extract duration in minutes from text description."""
-        # Common Russian time patterns
         patterns = [
-            r'(\d+(?:\.\d+)?)\s*(?:минут|мин|min)',  # 10 минут, 10 мин
-            r'(\d+(?:\.\d+)?)\s*(?:час|часа|часов|ч|h)',  # 1 час, 2 часа
-            r'(\d+(?:\.\d+)?)\s*(?:сек|секунд|с|s)',  # 30 секунд, 30 сек
+            r'(\d+(?:\.\d+)?)\s*(?:минут|мин|min)',
+            r'(\d+(?:\.\d+)?)\s*(?:час|часа|часов|ч|h)',
+            r'(\d+(?:\.\d+)?)\s*(?:сек|секунд|с|s)',
         ]
         
         minutes = 0
@@ -120,8 +115,7 @@ class AIService:
             response = await self._make_request(messages)
             content = response["choices"][0]["message"]["content"]
             result = self._extract_json_from_text(content)
-            
-            # Also try to extract duration directly from text as backup
+
             text_duration = self._extract_duration_from_text(description)
             
             workout_type = str(result["workout_type"])
@@ -133,8 +127,7 @@ class AIService:
             
         except (AIServiceError, json.JSONDecodeError, KeyError, IndexError, ValueError) as e:
             logger.error(f"Failed to parse workout description: {str(e)}")
-            
-            # Fallback: try to extract duration from text
+
             minutes = self._extract_duration_from_text(description) or 30
             return description, minutes, "Примерная оценка длительности"
     
@@ -164,7 +157,6 @@ class AIService:
                 return float(result["calories"]), str(result["explanation"])
             except (json.JSONDecodeError, KeyError, IndexError, ValueError) as e:
                 logger.error(f"Failed to parse AI response for food '{food_description}': {str(e)}\nResponse: {content}")
-                # Fallback to a second attempt with more explicit prompt
                 messages.append({"role": "assistant", "content": "I'll help estimate calories, but please remind me to respond with valid JSON only."})
                 messages.append({"role": "user", "content": f"Please provide calorie estimate for '{food_description}' in EXACT JSON format: {{\"calories\": number, \"explanation\": \"string\"}}"})
                 
@@ -205,7 +197,6 @@ class AIService:
                 return float(result["calories_per_minute"]) * minutes, str(result["explanation"])
             except (json.JSONDecodeError, KeyError, IndexError, ValueError) as e:
                 logger.error(f"Failed to parse AI response for workout '{workout_type}': {str(e)}\nResponse: {content}")
-                # Use MET values for fallback
                 met_values = {
                     "ходьба": 3.5,
                     "бег": 8.0,
@@ -224,9 +215,9 @@ class AIService:
                 # Find closest matching activity
                 import difflib
                 closest = difflib.get_close_matches(workout_type.lower(), met_values.keys(), n=1, cutoff=0.3)
-                met = met_values[closest[0]] if closest else 4.0  # default MET
+                met = met_values[closest[0]] if closest else 4.0
                 
-                calories_per_minute = (met * 3.5 * weight) / 200  # MET formula
+                calories_per_minute = (met * 3.5 * weight) / 200
                 return (calories_per_minute * minutes,
                         f"Оценка на основе MET (metabolic equivalent of task) для '{closest[0] if closest else 'средней активности'}'")
         except AIServiceError as e:

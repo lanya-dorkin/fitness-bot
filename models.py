@@ -16,8 +16,8 @@ class UserProfile(BaseModel):
         if not self.weight:
             return 0
         
-        base_norm = self.weight * 30  # 30ml per kg
-        activity_addition = (self.activity_minutes or 0) // 30 * 500  # 500ml per 30min
+        base_norm = self.weight * 30
+        activity_addition = (self.activity_minutes or 0) // 30 * 500
         temp_addition = 500 if temperature > 25 else 0
         
         return base_norm + activity_addition + temp_addition
@@ -29,11 +29,9 @@ class UserProfile(BaseModel):
         if self.custom_calorie_goal:
             return self.custom_calorie_goal
             
-        # Basic Harris-Benedict formula
         bmr = 10 * self.weight + 6.25 * self.height - 5 * self.age
-        
-        # Activity factor
-        activity_calories = (self.activity_minutes or 0) * 7  # ~7 calories per minute of activity
+
+        activity_calories = (self.activity_minutes or 0) * 7
         
         return bmr + activity_calories
 
@@ -42,7 +40,7 @@ class UserProfile(BaseModel):
             return 0
         
         daily_bmr = 10 * self.weight + 6.25 * self.height - 5 * self.age
-        return daily_bmr / 1440  # Convert daily BMR to per minute
+        return daily_bmr / 1440
 
 class FoodEntry(BaseModel):
     food_name: str
@@ -59,7 +57,7 @@ class WorkoutEntry(BaseModel):
 
 class DailyLog(BaseModel):
     date: datetime
-    water_intake: float = 0  # in ml
+    water_intake: float = 0
     calorie_intake: float = 0
     calorie_burned_exercise: float = 0
     calorie_burned_bmr: float = 0
@@ -86,8 +84,8 @@ class DailyLog(BaseModel):
         if not self.weight:
             return 0
         
-        base_norm = self.weight * 30  # 30ml per kg
-        activity_addition = (self.activity_minutes or 0) // 30 * 500  # 500ml per 30min
+        base_norm = self.weight * 30
+        activity_addition = (self.activity_minutes or 0) // 30 * 500
         temp_addition = 500 if self.temperature > 25 else 0
         
         return base_norm + activity_addition + temp_addition
@@ -99,11 +97,9 @@ class DailyLog(BaseModel):
         if self.custom_calorie_goal:
             return self.custom_calorie_goal
             
-        # Basic Harris-Benedict formula
         bmr = 10 * self.weight + 6.25 * self.height - 5 * self.age
         
-        # Activity factor
-        activity_calories = (self.activity_minutes or 0) * 7  # ~7 calories per minute of activity
+        activity_calories = (self.activity_minutes or 0) * 7
         
         return bmr + activity_calories
 
@@ -112,7 +108,7 @@ class DailyLog(BaseModel):
             return 0
         
         daily_bmr = 10 * self.weight + 6.25 * self.height - 5 * self.age
-        return daily_bmr / 1440  # Convert daily BMR to per minute
+        return daily_bmr / 1440
 
     def update_bmr_calories(self, user: UserProfile):
         now = datetime.now()
@@ -133,8 +129,8 @@ class DailyLog(BaseModel):
         if not self.weight:
             return 0
         
-        base_norm = self.weight * 30  # 30ml per kg
-        activity_addition = (self.activity_minutes or 0) // 30 * 500  # 500ml per 30min
+        base_norm = self.weight * 30
+        activity_addition = (self.activity_minutes or 0) // 30 * 500
         temp_addition = 500 if self.temperature > 25 else 0
         
         return base_norm + activity_addition + temp_addition
@@ -145,12 +141,10 @@ class DailyLog(BaseModel):
         
         if self.custom_calorie_goal:
             return self.custom_calorie_goal
-            
-        # Basic Harris-Benedict formula
+
         bmr = 10 * self.weight + 6.25 * self.height - 5 * self.age
         
-        # Activity factor
-        activity_calories = (self.activity_minutes or 0) * 7  # ~7 calories per minute of activity
+        activity_calories = (self.activity_minutes or 0) * 7
         
         return bmr + activity_calories
 
@@ -159,7 +153,7 @@ class DailyLog(BaseModel):
             return 0
         
         daily_bmr = 10 * self.weight + 6.25 * self.height - 5 * self.age
-        return daily_bmr / 1440  # Convert daily BMR to per minute
+        return daily_bmr / 1440
 
     def update_bmr_calories(self, user: UserProfile):
         now = datetime.now()

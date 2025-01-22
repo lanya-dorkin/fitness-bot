@@ -147,7 +147,7 @@ async def process_age(message: Message, state: FSMContext):
 async def process_activity(message: Message, state: FSMContext):
     try:
         activity = int(message.text)
-        if activity < 0 or activity > 1440:  # Max minutes in a day
+        if activity < 0 or activity > 1440:
             raise ValueError("Activity minutes out of reasonable range")
         logger.info(f"User {message.from_user.id} set activity: {activity}min/day")
         await state.update_data(activity_minutes=activity)
@@ -234,7 +234,6 @@ async def cmd_log_water(message: Message):
     try:
         parts = message.text.split()
         if len(parts) == 1:
-            # If no amount provided, show help
             await message.answer(
                 "Укажите количество воды в миллилитрах после команды.\n"
                 "Например: /log_water 250",
@@ -348,22 +347,18 @@ async def cmd_log_workout(message: Message):
             daily_logs[user_id] = DailyLog(date=datetime.now())
         
         try:
-            # Parse workout description
             workout_type, minutes, parse_explanation = await ai_service.parse_workout_description(description)
             
-            if minutes <= 0 or minutes > 480:  # Max 8 hours
+            if minutes <= 0 or minutes > 480:
                 raise ValueError("Workout duration out of reasonable range")
             
-            # Get weather and calculate adjustments
             weather = await weather_service.get_weather(users[user_id].city)
             intensity_factor, intensity_explanation = weather_service.get_workout_adjustment(weather)
             
-            # Calculate calories
             calories, explanation = await ai_service.estimate_workout_calories(
                 workout_type, minutes, users[user_id].weight
             )
             
-            # Adjust calories based on weather
             adjusted_calories = calories * intensity_factor
             
             workout_entry = WorkoutEntry(
@@ -479,7 +474,7 @@ async def handle_protected_command(message: Message):
 @router.message(F.text.startswith('/'))
 async def handle_unknown_command(message: Message):
     """Handle unknown commands."""
-    command = message.text.split()[0][1:]  # Remove the '/' and get the command name
+    command = message.text.split()[0][1:]
     if command not in AVAILABLE_COMMANDS:
         has_profile = message.from_user.id in users
         logger.warning(f"User {message.from_user.id} tried unknown command: {command}")
